@@ -89,7 +89,14 @@ public class SkyscraperConfig implements Configuration {
     {
         this.size = copy.size;
         this.borders = copy.borders;
-        this.grid = copy.grid;
+        this.grid = new int[size][size];
+        for(int y = 0; y < size; y++)
+        {
+            for(int x = 0; x < size; x++)
+            {
+                this.grid[y][x] = copy.grid[y][x];
+            }
+        }
     }
 
     @Override
@@ -114,24 +121,21 @@ public class SkyscraperConfig implements Configuration {
         for (int i = 1; i <= size; i++)
         {
             SkyscraperConfig child = new SkyscraperConfig(this);
-            if(child.isGoal())
-                break;
+
             for(int y = 0; y < size; y++)
             {
                 if(child.grid[y][free[1]] == i)
                     used = true;
-
             }
             for(int x = 0; x < size; x++)
             {
                 if(child.grid[free[0]][x] == i)
                     used = true;
             }
-            if(!used && child.isValid())
+            if(!used)
             {
                 child.grid[free[0]][free[1]] = i;
                 children.add(child);
-                children.addAll(child.getSuccessors());
             }
             used = false;
         }
@@ -173,7 +177,7 @@ public class SkyscraperConfig implements Configuration {
             }
             if(self > count + empty)
             {
-                System.out.println("\nERROR\n" + this + "\nNorth Wanted:" + self + " Got:" + (count+empty));
+                //System.out.println("\nERROR\n" + this + "\nNorth Wanted:" + self + " Got:" + (count+empty));
                 return false;
             }
             count = 0;
@@ -202,7 +206,7 @@ public class SkyscraperConfig implements Configuration {
             }
             if(self > count + empty)
             {
-                System.out.println("\nERROR\n" + this + "\nEast Wanted:" + self + " Got:" + (count+empty));
+                //System.out.println("\nERROR\n" + this + "\nEast Wanted:" + self + " Got:" + (count+empty));
                 return false;
             }
             count = 0;
@@ -231,7 +235,7 @@ public class SkyscraperConfig implements Configuration {
             }
             if(self > count + empty)
             {
-                System.out.println("\nERROR\n" + this + "\nSouth Wanted:" + self + " Got:" + (count+empty));
+                //System.out.println("\nERROR\n" + this + "\nSouth Wanted:" + self + " Got:" + (count+empty));
                 return false;
             }
             count = 0;
@@ -260,7 +264,7 @@ public class SkyscraperConfig implements Configuration {
             }
             if(self > count + empty)
             {
-                System.out.println("\nERROR\n" + this + "\nWest Wanted:" + self + " Got:" + (count+empty));
+                //System.out.println("\nERROR\n" + this + "\nWest Wanted:" + self + " Got:" + (count+empty));
                 return false;
             }
             count = 0;
@@ -275,7 +279,7 @@ public class SkyscraperConfig implements Configuration {
         {
         }
         */
-        System.out.println("\nVALID\n" + this);
+        //System.out.println("\nVALID\n" + this);
         return true;
     }
 
