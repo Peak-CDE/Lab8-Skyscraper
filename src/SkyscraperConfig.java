@@ -152,9 +152,11 @@ public class SkyscraperConfig implements Configuration {
     {
         int count = 0;
         int empty = 0;
+        int epast = 0;
         int tallest = 0;
         int self;
         int current;
+        boolean pastTallest = false;
 
         for(int x = 0; x < size; x++)
         {
@@ -164,7 +166,10 @@ public class SkyscraperConfig implements Configuration {
                 current = grid[y][x];
 
                 if(current == 0)
-                    empty++;
+                    if(pastTallest)
+                        epast++;
+                    else
+                        empty++;
                 else if(current > tallest)
                 {
                     count++;
@@ -172,17 +177,16 @@ public class SkyscraperConfig implements Configuration {
                 }
                 if(current == size)
                 {
-                    break;
+                    pastTallest = true;
                 }
             }
-            if(self > count + empty)
-            {
-                //System.out.println("\nERROR\n" + this + "\nNorth Wanted:" + self + " Got:" + (count+empty));
+            if(!validate(self, count, empty + epast, empty + count))
                 return false;
-            }
             count = 0;
             empty = 0;
+            epast = 0;
             tallest = 0;
+            pastTallest = false;
         }
 
         for (int y = 0; y < size; y++)
@@ -193,7 +197,10 @@ public class SkyscraperConfig implements Configuration {
                 current = grid[y][x];
 
                 if(current == 0)
-                    empty++;
+                    if(pastTallest)
+                        epast++;
+                    else
+                        empty++;
                 else if(current > tallest)
                 {
                     count++;
@@ -201,17 +208,16 @@ public class SkyscraperConfig implements Configuration {
                 }
                 if(current == size)
                 {
-                    break;
+                    pastTallest = true;
                 }
             }
-            if(self > count + empty)
-            {
-                //System.out.println("\nERROR\n" + this + "\nEast Wanted:" + self + " Got:" + (count+empty));
+            if(!validate(self, count, empty + epast, empty + count))
                 return false;
-            }
             count = 0;
             empty = 0;
+            epast = 0;
             tallest = 0;
+            pastTallest = false;
         }
 
         for(int x = 0; x < size; x++)
@@ -222,7 +228,10 @@ public class SkyscraperConfig implements Configuration {
                 current = grid[y][x];
 
                 if(current == 0)
-                    empty++;
+                    if(pastTallest)
+                        epast++;
+                    else
+                        empty++;
                 else if(current > tallest)
                 {
                     count++;
@@ -230,17 +239,16 @@ public class SkyscraperConfig implements Configuration {
                 }
                 if(current == size)
                 {
-                    break;
+                    pastTallest = true;
                 }
             }
-            if(self > count + empty)
-            {
-                //System.out.println("\nERROR\n" + this + "\nSouth Wanted:" + self + " Got:" + (count+empty));
+            if(!validate(self, count, empty + epast, empty + count))
                 return false;
-            }
             count = 0;
             empty = 0;
+            epast = 0;
             tallest = 0;
+            pastTallest = false;
         }
 
         for (int y = 0; y < size; y++)
@@ -251,7 +259,10 @@ public class SkyscraperConfig implements Configuration {
                 current = grid[y][x];
 
                 if(current == 0)
-                    empty++;
+                    if(pastTallest)
+                        epast++;
+                    else
+                        empty++;
                 else if(current > tallest)
                 {
                     count++;
@@ -259,30 +270,48 @@ public class SkyscraperConfig implements Configuration {
                 }
                 if(current == size)
                 {
-                    break;
+                    pastTallest = true;
                 }
             }
-            if(self > count + empty)
-            {
-                //System.out.println("\nERROR\n" + this + "\nWest Wanted:" + self + " Got:" + (count+empty));
+            if(!validate(self, count, empty + epast, empty + count))
                 return false;
-            }
             count = 0;
             empty = 0;
+            epast = 0;
             tallest = 0;
+            pastTallest = false;
         }
-        /*
-        for(int x = 0; x < size; x++)
-        {
-        }
-        for (int y = 0; y < size; y++)
-        {
-        }
-        */
-        //System.out.println("\nVALID\n" + this);
         return true;
     }
 
+    /**
+     * Validate the count seen from the border against its proper count
+     * @param self      How many should be seen
+     * @param count     How many are seen
+     * @param empty     How many total empty (empty + epast)
+     * @param possible  How many possible (count + empty)
+     * @return          True if valid config, false otherwise
+     */
+    private boolean validate(int self, int count, int empty, int possible)
+    {
+        if(empty == 0)
+        {
+            if(self != count)
+                return false;
+        }
+        else if(self > possible)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Finds the first free space from the top left to the bottom right
+     * @return      an array where 0 is the y value and 1 is the x value,
+     *              or and array of -1 at 0 if there is no free space
+     */
     private int[] findFreeSpace()
     {
         for (int y = 0; y < size; y++)
@@ -303,15 +332,43 @@ public class SkyscraperConfig implements Configuration {
             //Max size has to be next to it
             if(borders[NORTH][i] == 1)
                 grid[0][i] = size;
+            else if(borders[NORTH][i] == size)
+            {
+                for (int y = 0; y < size; y++)
+                {
+                    grid[y][i] = y+1;
+                }
+            }
 
             if(borders[SOUTH][i] == 1)
                 grid[size-1][i] = size;
+            else if(borders[SOUTH][i] == size)
+            {
+                for (int y = size-1; y >= 0; y--)
+                {
+                    grid[y][i] = size - y;
+                }
+            }
 
             if(borders[WEST][i] == 1)
                 grid[i][0] = size;
+            else if(borders[WEST][i] == size)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    grid[i][x] = x+1;
+                }
+            }
 
             if(borders[EAST][i] == 1)
                 grid[i][size-1] = size;
+            else if(borders[EAST][i] == size)
+            {
+                for (int x = size-1; x >= 0; x--)
+                {
+                    grid[i][x] = size - x;
+                }
+            }
         }
     }
 
