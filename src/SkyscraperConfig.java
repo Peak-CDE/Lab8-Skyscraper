@@ -101,15 +101,13 @@ public class SkyscraperConfig implements Configuration {
 
     @Override
     public boolean isGoal() {
-        if (isValid() && findFreeSpace()[0] == -1)
-            return true;
-        else return false;
+        return isValid() && findFreeSpace()[0] == -1;
     }
 
     /**
      * getSuccessors
      *
-     * @returns Collection of Configurations
+     * @return Collection of Configurations
      */
     @Override
     public Collection<Configuration> getSuccessors()
@@ -124,13 +122,17 @@ public class SkyscraperConfig implements Configuration {
 
             for(int y = 0; y < size; y++)
             {
-                if(child.grid[y][free[1]] == i)
+                if (child.grid[y][free[1]] == i) {
                     used = true;
+                    break;
+                }
             }
             for(int x = 0; x < size; x++)
             {
-                if(child.grid[free[0]][x] == i)
+                if (child.grid[free[0]][x] == i) {
                     used = true;
+                    break;
+                }
             }
             if(!used)
             {
@@ -145,7 +147,7 @@ public class SkyscraperConfig implements Configuration {
     /**
      * isValid() - checks if current config is valid
      *
-     * @returns true if config is valid, false otherwise
+     * @return true if config is valid, false otherwise
      */
     @Override
     public boolean isValid()
@@ -180,7 +182,7 @@ public class SkyscraperConfig implements Configuration {
                     pastTallest = true;
                 }
             }
-            if(!validate(self, count, empty + epast, empty + count))
+            if(invalid(self, count, empty + epast, empty + count))
                 return false;
             count = 0;
             empty = 0;
@@ -211,7 +213,7 @@ public class SkyscraperConfig implements Configuration {
                     pastTallest = true;
                 }
             }
-            if(!validate(self, count, empty + epast, empty + count))
+            if(invalid(self, count, empty + epast, empty + count))
                 return false;
             count = 0;
             empty = 0;
@@ -242,7 +244,7 @@ public class SkyscraperConfig implements Configuration {
                     pastTallest = true;
                 }
             }
-            if(!validate(self, count, empty + epast, empty + count))
+            if(invalid(self, count, empty + epast, empty + count))
                 return false;
             count = 0;
             empty = 0;
@@ -273,7 +275,7 @@ public class SkyscraperConfig implements Configuration {
                     pastTallest = true;
                 }
             }
-            if(!validate(self, count, empty + epast, empty + count))
+            if(invalid(self, count, empty + epast, empty + count))
                 return false;
             count = 0;
             empty = 0;
@@ -292,19 +294,13 @@ public class SkyscraperConfig implements Configuration {
      * @param possible  How many possible (count + empty)
      * @return          True if valid config, false otherwise
      */
-    private boolean validate(int self, int count, int empty, int possible)
+    private boolean invalid(int self, int count, int empty, int possible)
     {
         if(empty == 0)
         {
-            if(self != count)
-                return false;
+            return self != count;
         }
-        else if(self > possible)
-        {
-            return false;
-        }
-
-        return true;
+        else return self > possible;
     }
 
     /**
@@ -389,7 +385,7 @@ public class SkyscraperConfig implements Configuration {
      */
     @Override
     public String toString() {
-        String out = "  ";
+        StringBuilder out = new StringBuilder("  ");
         int place = 0;
 
         //North bar
@@ -397,39 +393,37 @@ public class SkyscraperConfig implements Configuration {
         {
             if(i % 2 == 0)
             {
-                out += borders[NORTH][place];
+                out.append(borders[NORTH][place]);
                 place++;
             }
             else
-                out += " ";
+                out.append(" ");
         }
-        out += "%n  ";
+        out.append("%n  ");
 
         //North seperator
-        for(int i = 0; i < size*2; i++)
-            out += "-";
-        out += "%n";
+        out.append("-".repeat(Math.max(0, size * 2)));
+        out.append("%n");
 
         //West border, grid, right border
         for (int i = 0; i < size; i++)
         {
-            out += borders[WEST][i] + "|";
+            out.append(borders[WEST][i]).append("|");
             for (int j = 0; j < size; j++)
             {
                 if(grid[i][j] == EMPTY)
-                    out += EMPTY_CELL + " ";
+                    out.append(EMPTY_CELL + " ");
                 else
-                    out += grid[i][j] + " ";
+                    out.append(grid[i][j]).append(" ");
             }
-            out = out.substring(0, out.length()-1);
-            out += "|" + borders[EAST][i] + "%n";
+            out = new StringBuilder(out.substring(0, out.length() - 1));
+            out.append("|").append(borders[EAST][i]).append("%n");
         }
 
         //South seperator
-        out += "  ";
-        for(int i = 0; i < size*2; i++)
-            out += "-";
-        out += "%n  ";
+        out.append("  ");
+        out.append("-".repeat(Math.max(0, size * 2)));
+        out.append("%n  ");
 
         place = 0;
         //South bar
@@ -437,13 +431,13 @@ public class SkyscraperConfig implements Configuration {
         {
             if(i % 2 == 0)
             {
-                out += borders[SOUTH][place];
+                out.append(borders[SOUTH][place]);
                 place++;
             }
             else
-                out += " ";
+                out.append(" ");
         }
 
-        return String.format(out);  // remove
+        return String.format(out.toString());  // remove
     }
 }
