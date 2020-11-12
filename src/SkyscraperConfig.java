@@ -152,22 +152,26 @@ public class SkyscraperConfig implements Configuration {
     @Override
     public boolean isValid()
     {
-        int count = 0;
-        int empty = 0;
-        int epast = 0;
-        int tallest = 0;
-        int self;
-        int current;
-        boolean pastTallest = false;
+        int count = 0;      //How many buildings are visible from the border position
+        int empty = 0;      //How many empty spaces are visible before the tallest tower is seen
+        int epast = 0;      //How many empty spaces are visible after the tallest tower is seen
+        int tallest = 0;    //What is the tallest tower seen so far
+        int self;           //What is the value of the border
+        int current;        //What is the value of the space on the grid being evaluated
+        boolean pastTallest = false;    //Has the tallest possible tower been passed yet?
 
+        //Check validity of all columns from north border
         for(int x = 0; x < size; x++)
         {
             self = borders[NORTH][x];
             for (int y = 0; y < size; y++)
             {
-                current = grid[y][x];
+                current = grid[y][x];   //Get current space
 
+                //If current is empty add to one of the empty counters,
+                //else add to count if it's visible and update tallest
                 if(current == 0)
+                    //Add to empty if haven't passed tallest possible, else add to epast
                     if(pastTallest)
                         epast++;
                     else
@@ -177,13 +181,16 @@ public class SkyscraperConfig implements Configuration {
                     count++;
                     tallest = current;
                 }
+                //If this is the tallest tower we have passed the tallest tower
                 if(current == size)
                 {
                     pastTallest = true;
                 }
             }
+            //If the values we counted are invalid, return false
             if(invalid(self, count, empty + epast, empty + count))
                 return false;
+            //Reset values for next iteration
             count = 0;
             empty = 0;
             epast = 0;
@@ -191,14 +198,18 @@ public class SkyscraperConfig implements Configuration {
             pastTallest = false;
         }
 
+        //Check validity of all rows from east border
         for (int y = 0; y < size; y++)
         {
             self = borders[EAST][y];
             for(int x = size-1; x >= 0; x--)
             {
-                current = grid[y][x];
+                current = grid[y][x];   //Get current space
 
+                //If current is empty add to one of the empty counters,
+                //else add to count if it's visible and update tallest
                 if(current == 0)
+                    //Add to empty if haven't passed tallest possible, else add to epast
                     if(pastTallest)
                         epast++;
                     else
@@ -208,13 +219,16 @@ public class SkyscraperConfig implements Configuration {
                     count++;
                     tallest = current;
                 }
+                //If this is the tallest tower we have passed the tallest tower
                 if(current == size)
                 {
                     pastTallest = true;
                 }
             }
+            //If the values we counted are invalid, return false
             if(invalid(self, count, empty + epast, empty + count))
                 return false;
+            //Reset values for next iteration
             count = 0;
             empty = 0;
             epast = 0;
@@ -222,14 +236,18 @@ public class SkyscraperConfig implements Configuration {
             pastTallest = false;
         }
 
+        //Check validity of all columns from south border
         for(int x = 0; x < size; x++)
         {
             self = borders[SOUTH][x];
             for (int y = size-1; y >= 0; y--)
             {
-                current = grid[y][x];
+                current = grid[y][x];   //Get current space
 
+                //If current is empty add to one of the empty counters,
+                //else add to count if it's visible and update tallest
                 if(current == 0)
+                    //Add to empty if haven't passed tallest possible, else add to epast
                     if(pastTallest)
                         epast++;
                     else
@@ -239,13 +257,16 @@ public class SkyscraperConfig implements Configuration {
                     count++;
                     tallest = current;
                 }
+                //If this is the tallest tower we have passed the tallest tower
                 if(current == size)
                 {
                     pastTallest = true;
                 }
             }
+            //If the values we counted are invalid, return false
             if(invalid(self, count, empty + epast, empty + count))
                 return false;
+            //Reset values for next iteration
             count = 0;
             empty = 0;
             epast = 0;
@@ -253,14 +274,18 @@ public class SkyscraperConfig implements Configuration {
             pastTallest = false;
         }
 
+        //Check validity of all rows from west border
         for (int y = 0; y < size; y++)
         {
             self = borders[WEST][y];
             for(int x = 0; x < size; x++)
             {
-                current = grid[y][x];
+                current = grid[y][x];   //Get current space
 
+                //If current is empty add to one of the empty counters,
+                //else add to count if it's visible and update tallest
                 if(current == 0)
+                    //Add to empty if haven't passed tallest possible, else add to epast
                     if(pastTallest)
                         epast++;
                     else
@@ -270,13 +295,16 @@ public class SkyscraperConfig implements Configuration {
                     count++;
                     tallest = current;
                 }
+                //If this is the tallest tower we have passed the tallest tower
                 if(current == size)
                 {
                     pastTallest = true;
                 }
             }
+            //If the values we counted are invalid, return false
             if(invalid(self, count, empty + epast, empty + count))
                 return false;
+            //Reset values for next iteration
             count = 0;
             empty = 0;
             epast = 0;
@@ -284,6 +312,22 @@ public class SkyscraperConfig implements Configuration {
             pastTallest = false;
         }
         return true;
+    }
+    
+    private boolean beenUsed(SkyscraperConfig child, int passX, int passY, int val)
+    {
+        for(int y = 0; y < size; y++)
+        {
+            if (child.grid[y][passX] == val) {
+                return true;
+            }
+        }
+        for(int x = 0; x < size; x++)
+        {
+            if (child.grid[passY][x] == val) {
+                return true;
+            }
+        }
     }
 
     /**
@@ -296,6 +340,8 @@ public class SkyscraperConfig implements Configuration {
      */
     private boolean invalid(int self, int count, int empty, int possible)
     {
+        //if the counted row / collum is complete, make sure the visible count is exactly the border count
+        //else make sure the border count is less than the total of the visible + the empty that could be seen
         if(empty == 0)
         {
             return self != count;
@@ -321,11 +367,22 @@ public class SkyscraperConfig implements Configuration {
         return new int[]{-1};
     }
 
+
+    /**
+     * Fill in the empty values that are always going to be true
+     * Call this in constructor to save time
+     */
     private void fillKnown()
     {
+        //For each border value this checks if it is 1,
+        //if it is, make the closest grid space too it the highest possible
+
+        //For each border value if it is the same as the size then fill in the row / col
+        //leading away from it with values increasing by 1 from 1 to size
+
         for (int i = 0; i < size; i++)
         {
-            //Max size has to be next to it
+
             if(borders[NORTH][i] == 1)
                 grid[0][i] = size;
             else if(borders[NORTH][i] == size)
@@ -385,12 +442,13 @@ public class SkyscraperConfig implements Configuration {
      */
     @Override
     public String toString() {
-        StringBuilder out = new StringBuilder("  ");
-        int place = 0;
+        StringBuilder out = new StringBuilder("  "); //We are building a new string
+        int place = 0;  // used to keep track of the actual index for writing north and south borders
 
         //North bar
         for( int i = 0; i < size * 2 - 1; i++)
         {
+            //Write the value if the loop is even, add a space otherwise
             if(i % 2 == 0)
             {
                 out.append(borders[NORTH][place]);
@@ -408,7 +466,9 @@ public class SkyscraperConfig implements Configuration {
         //West border, grid, right border
         for (int i = 0; i < size; i++)
         {
+            //Write the west and the seperator
             out.append(borders[WEST][i]).append("|");
+            //Fill in all the values of the grid at that y followed by a space
             for (int j = 0; j < size; j++)
             {
                 if(grid[i][j] == EMPTY)
@@ -416,8 +476,8 @@ public class SkyscraperConfig implements Configuration {
                 else
                     out.append(grid[i][j]).append(" ");
             }
-            out = new StringBuilder(out.substring(0, out.length() - 1));
-            out.append("|").append(borders[EAST][i]).append("%n");
+            out = new StringBuilder(out.substring(0, out.length() - 1));    //take off the last space
+            out.append("|").append(borders[EAST][i]).append("%n");  //write the right seperator and value
         }
 
         //South seperator
@@ -429,6 +489,7 @@ public class SkyscraperConfig implements Configuration {
         //South bar
         for( int i = 0; i < size * 2 - 1; i++)
         {
+            //Write the value if the loop is even, add a space otherwise
             if(i % 2 == 0)
             {
                 out.append(borders[SOUTH][place]);
