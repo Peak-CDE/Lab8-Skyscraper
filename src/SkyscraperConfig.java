@@ -15,14 +15,15 @@ public class SkyscraperConfig implements Configuration {
     /** empty cell value display */
     public final static char EMPTY_CELL = '.';
 
+    //Final values to make accessing each border easier
     private final static int NORTH = 0;
     private final static int EAST = 1;
     private final static int SOUTH = 2;
     private final static int WEST = 3;
 
-    private int size;
-    private int[][] borders;
-    private int[][] grid;
+    private int size;           //The length of each side of the grid
+    private int[][] borders;    //2D array storing the border arrays in the same order as the final declares above
+    private int[][] grid;       //2D array representing the grid we are filling in
 
     /**
      * Constructor
@@ -50,13 +51,13 @@ public class SkyscraperConfig implements Configuration {
         while(f.hasNextLine())
         {
             String line = f.nextLine();
-            if (iLine == 0)
+            if (iLine == 0)     //Get size from line 1, also initialize the arrays
             {
                 size = Integer.parseInt(line);
                 borders = new int[4][size];
                 grid = new int[size][size];
             }
-            else if (5 > iLine && iLine > 0)
+            else if (5 > iLine && iLine > 0)    //Get border values from lines 2 - 5
             {
                 vals = line.split(" ");
                 for(int i = 0; i < size; i++)
@@ -64,7 +65,7 @@ public class SkyscraperConfig implements Configuration {
                     borders[iLine-1][i] = Integer.parseInt(vals[i]);
                 }
             }
-            else if (size + 5 > iLine)
+            else if (size + 5 > iLine)      //Get the rest of the lines as the initally filled spaces
             {
                 vals = line.split(" ");
                 for(int i = 0; i < size; i++)
@@ -75,7 +76,7 @@ public class SkyscraperConfig implements Configuration {
             iLine++;
         }
 
-        fillKnown();
+        fillKnown();    //Fill the spaces that are easy to fill depending on if the border is 1 or size
 
         f.close();
     }
@@ -101,6 +102,7 @@ public class SkyscraperConfig implements Configuration {
 
     @Override
     public boolean isGoal() {
+        //If its valid and theres no free space its the goal
         return isValid() && findFreeSpace()[0] == -1;
     }
 
@@ -112,14 +114,16 @@ public class SkyscraperConfig implements Configuration {
     @Override
     public Collection<Configuration> getSuccessors()
     {
-        int[] free = findFreeSpace();
+        int[] free = findFreeSpace();   //Find the available free space
         boolean used = false;
         ArrayList<Configuration> children = new ArrayList<>();
 
         for (int i = 1; i <= size; i++)
         {
+            //Clone this config
             SkyscraperConfig child = new SkyscraperConfig(this);
 
+            //Ensure the number has not been used in this column
             for(int y = 0; y < size; y++)
             {
                 if (child.grid[y][free[1]] == i) {
@@ -127,6 +131,7 @@ public class SkyscraperConfig implements Configuration {
                     break;
                 }
             }
+            //Ensure the number has not been used in this row
             for(int x = 0; x < size; x++)
             {
                 if (child.grid[free[0]][x] == i) {
@@ -134,6 +139,7 @@ public class SkyscraperConfig implements Configuration {
                     break;
                 }
             }
+            //If the number was used in either dont add it
             if(!used)
             {
                 child.grid[free[0]][free[1]] = i;
@@ -312,22 +318,6 @@ public class SkyscraperConfig implements Configuration {
             pastTallest = false;
         }
         return true;
-    }
-    
-    private boolean beenUsed(SkyscraperConfig child, int passX, int passY, int val)
-    {
-        for(int y = 0; y < size; y++)
-        {
-            if (child.grid[y][passX] == val) {
-                return true;
-            }
-        }
-        for(int x = 0; x < size; x++)
-        {
-            if (child.grid[passY][x] == val) {
-                return true;
-            }
-        }
     }
 
     /**
